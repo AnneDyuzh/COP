@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Магазин ткани</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" />
+</head>
+<body >
+    <div class="text-center"  style="height:100px; background-color: #7bd17b"><br>
+    <h2 style="background-color: #7bd17b">Магазин ткани "Arcadia"</h2></div><br><br>
+
+    <form name="orderForm">
+        <input type="hidden" name="id" value="0" />
+        <div class="prod d-flex col-lg-offset-1">
+            <div class="row" style="width:100%">
+                <div class="form-group col-lg-3">
+                    <label for="product_1">
+                        <h4>Кулирка с эф. велюра</h4>
+                    </label>
+                    <img src="/img/1.jpg" alt="1" style="width:260px;height:220px;">
+                    <p class="text-center">Цена за 100 м: 500 р.</p>
+                    <div class="inf" style="height:70px">
+                        <div class="col-lg-12">
+                            <input class="form-control" placeholder="Длина в метрах" name="product_1" />
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group col-lg-offset-1 col-lg-3">
+                    <label for="product_2">
+                        <h4>Вельвет трикотажный</h4>
+                    </label>
+                    <img src="/img/2.jpg" alt="2" style="width:260px;height:220px;">
+                    <p class="text-center">Цена за 100 м: 800 р.</p>
+                    <div class="inf">
+                        <div class="col-lg-12">
+                            <input class="form-control" placeholder="Длина в метрах" name="product_2" />
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group col-lg-offset-1 col-lg-3">
+                    <label for="product_3">
+                        <h4>Вискоза, звёзды</h4>
+                    </label>
+                    <img src="/img/3.jpg" alt="3" style="width:260px;height:220px;">
+                    <p class="text-center">Цена за 100 м: 200 р.</p>
+                    <div class="inf">
+                        <div class="col-lg-12">
+                            <input class="form-control" placeholder="Длина в метрах" name="product_3" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group  col-lg-3">
+                <label for="product_4">
+                    <h4>Лён с эф. мятости</h4>
+                </label>
+                <img src="/img/4.jpg" alt="4" style="width:260px;height:220px;">
+                <p class="text-center">Цена за 100 м: 340 р.</p>
+                <div class="inf">
+                    <div class="col-lg-12">
+                        <input class="form-control" placeholder="Длина в метрах" name="product_4" />
+                    </div>
+                </div>
+            </div>
+            <div class="form-group col-lg-offset-1 col-lg-3">
+                <label for="product_5">
+                    <h4>Сатин, лисы серые</h4>
+                </label>
+                <img src="/img/5.jpg" alt="5" style="width:260px;height:220px;">
+                <p class="text-center">Цена за 100 м: 150 р.</p>
+                <div class="inf">
+                    <div class="col-lg-12"  style="height:60px">
+                        <input class="form-control" placeholder="Длина в метрах" name="product_5" />
+                    </div>
+                </div>
+            </div>
+        </div>    
+        <div class="panel-body  col-lg-6 col-lg-offset-5" style="height:90px">
+            <button type="submit" class="btn btn-md btn-success">Сохранить</button>
+            <a id="reset" class="btn col-lg-offset-1 btn-md btn-success"> Сбросить </a>
+        </div>
+    </form>
+    <h3 class="col-lg-12" style="height:28px; background-color: #7bd17b">Таблица заказов</h3>
+    <table class="table col-lg-12 col-sm-8 table-condensed table-striped table-bordered">
+        <thead><tr><th>Id Заказа</th><th>Кулирка с эф. велюра</th><th>Вельвет трикотажный</th><th>Вискоза, звёзды</th>
+        <th>Лён с эф. мятости</th><th>Сатин, лисы серые</th><th>Общая стоимость</th><th></th></tr></thead>
+        <tbody>
+        </tbody>
+    </table>
+   
+    <script>
+    // Получение всех заказов
+        async function getOrders() {
+            // отправляет запрос и получаем ответ
+            const response = await fetch("/api/orders", {
+                method: "GET",
+                headers: { "Accept": "application/json" }
+            });
+            // если запрос прошел нормально
+            if (response.ok === true) {
+                // получаем данные
+                const orders = await response.json();
+                let rows = document.querySelector("tbody"); 
+                orders.forEach(order => {
+                    // добавляем полученные элементы в таблицу
+                    rows.append(row(order));
+                });
+            }
+        }
+        // Получение одного заказа
+        async function getOrder(id) {
+            const response = await fetch("/api/orders/" + id, {
+                method: "GET",
+                headers: { "Accept": "application/json" }
+            });
+            if (response.ok === true) {
+                const order = await response.json();
+                const form = document.forms["orderForm"];
+                form.elements["id"].value = order.id;
+                form.elements["product_1"].value = order.product_1;
+                form.elements["product_2"].value = order.product_2;
+                form.elements["product_3"].value = order.product_3;
+                form.elements["product_4"].value = order.product_4;
+                form.elements["product_5"].value = order.product_5;
+            }
+        }
+        // Добавление заказа
+        async function createOrder(orderProduct1, orderProduct2, orderProduct3, orderProduct4, orderProduct5) {
+  
+            const response = await fetch("api/orders", {
+                method: "POST",
+                headers: { "Accept": "application/json", "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    product_1: parseInt(orderProduct1, 10),
+                    product_2: parseInt(orderProduct2, 10),
+                    product_3: parseInt(orderProduct3, 10),
+                    product_4: parseInt(orderProduct4, 10),
+                    product_5: parseInt(orderProduct5, 10)
+                })
+            });
+            if (response.ok === true) {
+                const order = await response.json();
+                reset();
+                document.querySelector("tbody").append(row(order));
+            }
+        }
+        // Удаление заказа
+        async function deleteOrder(id) {
+            const response = await fetch("/api/orders/" + id, {
+                method: "DELETE",
+                headers: { "Accept": "application/json" }
+            });
+            if (response.ok === true) {
+                const order = await response.json();
+                document.querySelector("tr[data-rowid='" + order.id + "']").remove();
+            }
+        }
+        // сброс формы
+        function reset() {
+            const form = document.forms["orderForm"];
+            form.reset();
+            form.elements["id"].value = 0;
+        }
+        // создание строки для таблицы
+        function row(order) {
+  
+            const tr = document.createElement("tr");
+            tr.setAttribute("data-rowid", order.id);
+  
+            const idTd = document.createElement("td");
+            idTd.append(order.id);
+            tr.append(idTd);
+  
+            const product1Td = document.createElement("td");
+            product1Td.append(order.product_1);
+            tr.append(product1Td);
+  
+            const product2Td = document.createElement("td");
+            product2Td.append(order.product_2);
+            tr.append(product2Td);
+
+             const product3Td = document.createElement("td");
+            product3Td.append(order.product_3);
+            tr.append(product3Td);
+
+             const product4Td = document.createElement("td");
+            product4Td.append(order.product_4);
+            tr.append(product4Td);
+
+            const product5Td = document.createElement("td");
+            product5Td.append(order.product_5);
+            tr.append(product5Td);
+            
+            const sumTd = document.createElement("td");
+            sumTd.append(order.sum);
+            tr.append(sumTd);
+            const linksTd = document.createElement("td");
+  
+            const removeLink = document.createElement("a");
+            removeLink.setAttribute("data-id", order.id);
+            removeLink.setAttribute("style", "cursor:pointer;padding:15px;");
+            removeLink.append("Удалить");
+            removeLink.addEventListener("click", e => {
+  
+                e.preventDefault();
+                deleteOrder(order.id);
+            });
+  
+            linksTd.append(removeLink);
+            tr.appendChild(linksTd);
+  
+            return tr;
+        }
+        // сброс значений формы
+        document.getElementById("reset").addEventListener("click", e => {
+  
+            e.preventDefault();
+            reset();
+        })
+  
+        // отправка формы
+        document.forms["orderForm"].addEventListener("submit", e => {
+            e.preventDefault();
+            const form = document.forms["orderForm"];
+            const id = form.elements["id"].value;
+            const product_1 = form.elements["product_1"].value;
+            const product_2 = form.elements["product_2"].value;
+            const product_3 = form.elements["product_3"].value;
+            const product_4 = form.elements["product_4"].value;
+            const product_5 = form.elements["product_5"].value;
+            if (id == 0)
+                createOrder(product_1,  product_2, product_3, product_4, product_5);
+            else
+                editOrder(id, product_1, product_2, product_3, product_4, product_5);
+        });
+  
+        // загрузка заказов
+        getOrders();
+    </script>
+</body>
+</html>
